@@ -24,7 +24,7 @@ public class SampleClass1 {
 
 ```java
 try {
-    PbObjectMapper mapper = new ObjectMapper();
+    PbObjectMapper mapper = new PbObjectMapper();
     byte[] sampleData = new byte[]{ 
         0x08, 0x14,                                     // ID = 20
         0x12, 0x06, 0x72, 0x75, 0x6D, 0x70, 0x66, 0x63  // name = rumpfc
@@ -42,7 +42,7 @@ try {
 
 ```java
 try {
-    PbObjectMapper mapper = new ObjectMapper();
+    PbObjectMapper mapper = new PbObjectMapper();
     
     SampleClass1 sample = new SampleClass1();
     sample.setId(20);
