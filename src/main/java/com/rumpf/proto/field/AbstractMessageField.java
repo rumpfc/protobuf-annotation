@@ -4,7 +4,6 @@ import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.rumpf.proto.PbFieldType;
 import com.rumpf.proto.PbModifier;
-import com.rumpf.proto.ProtobufObject;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -15,11 +14,11 @@ public abstract class AbstractMessageField implements MessageField {
     protected final int fieldNumber;
     protected final PbModifier modifier;
     protected final PbFieldType type;
-    protected final ProtobufObject pbObject;
+    protected final Object object;
 
-    protected AbstractMessageField(ProtobufObject pbObject, Field field, int fieldNumber, PbFieldType type, PbModifier modifier) {
+    protected AbstractMessageField(Object object, Field field, int fieldNumber, PbFieldType type, PbModifier modifier) {
         this.field = field;
-        this.pbObject = pbObject;
+        this.object = object;
         this.fieldNumber = fieldNumber;
         this.type = type;
         this.modifier = modifier;

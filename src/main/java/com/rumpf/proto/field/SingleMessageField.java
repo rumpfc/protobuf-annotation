@@ -3,6 +3,7 @@ package com.rumpf.proto.field;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.rumpf.proto.*;
+import com.rumpf.proto.mapper.PbObjectMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -12,8 +13,8 @@ import java.util.Objects;
 
 public class SingleMessageField extends AbstractMessageField {
 
-    public SingleMessageField(ProtobufObject pbObject, Field field, int fieldNumber, PbFieldType type, PbModifier modifier) {
-        super(pbObject, field, fieldNumber, type, modifier);
+    public SingleMessageField(Object object, Field field, int fieldNumber, PbFieldType type, PbModifier modifier) {
+        super(object, field, fieldNumber, type, modifier);
     }
 
     public int getFieldNumber() {
@@ -37,7 +38,7 @@ public class SingleMessageField extends AbstractMessageField {
         Object value = null;
         try {
             field.setAccessible(true);
-            value = field.get(pbObject);
+            value = field.get(object);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } finally {
@@ -63,7 +64,7 @@ public class SingleMessageField extends AbstractMessageField {
     private void setPrimitive(Object value) {
         try {
             field.setAccessible(true);
-            field.set(pbObject, value);
+            field.set(object, value);
             field.setAccessible(false);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
@@ -74,7 +75,7 @@ public class SingleMessageField extends AbstractMessageField {
         if(value instanceof Integer) {
             try {
                 field.setAccessible(true);
-                field.set(pbObject, ProtobufEnum.findById(field.getType(), (Integer)value));
+                field.set(object, ProtobufEnum.findById(field.getType(), (Integer)value));
                 field.setAccessible(false);
             } catch (IllegalAccessException | IllegalArgumentException e) {
                 e.printStackTrace();
@@ -86,15 +87,14 @@ public class SingleMessageField extends AbstractMessageField {
         if(value instanceof byte[]) {
             try {
                 byte[] data = (byte[]) value;
-                Constructor<?> constructor = field.getType().getConstructor();
-                Object o = constructor.newInstance();
-                if(o instanceof ProtobufObject) {
-                    ((ProtobufObject)o).read(data);
-                    field.setAccessible(true);
-                    field.set(pbObject, o);
-                    field.setAccessible(false);
-                }
-            } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | InvocationTargetException | InstantiationException | IOException e) {
+                PbObjectMapper mapper = new PbObjectMapper();
+                Object o = mapper.read(data);
+
+                field.setAccessible(true);
+                field.set(this.object, o);
+                field.setAccessible(false);
+
+            } catch (IllegalAccessException | IllegalArgumentException | IOException e) {
                 e.printStackTrace();
             }
         }

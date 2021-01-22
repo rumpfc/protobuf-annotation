@@ -1,6 +1,7 @@
 package com.rumpf.proto;
 
 import com.google.protobuf.CodedInputStream;
+import com.rumpf.proto.mapper.PbObjectMapper;
 
 import java.util.function.Predicate;
 
@@ -18,7 +19,7 @@ public enum PbFieldType {
     DOUBLE(1, c -> double.class.isAssignableFrom(c) || Double.class.isAssignableFrom(c), CodedInputStream::readDouble, (v, c) -> c.writeDoubleNoTag((Double)v)),
     STRING(2, String.class::isAssignableFrom, CodedInputStream::readString, (v, c) -> c.writeStringNoTag((String)v)),
     BYTES(2, byte[].class::isAssignableFrom, CodedInputStream::readByteArray, (v, c) -> c.writeByteArrayNoTag((byte[])v)),
-    MESSAGE(2, ProtobufObject.class::isAssignableFrom, CodedInputStream::readByteArray, (v, c) -> c.writeByteArrayNoTag(((ProtobufObject)v).write())),
+    MESSAGE(2, Object.class::isAssignableFrom, CodedInputStream::readByteArray, (v, c) -> c.writeByteArrayNoTag(new PbObjectMapper().write(v))),
     FIXED32(5, c -> int.class.isAssignableFrom(c) || Integer.class.isAssignableFrom(c), CodedInputStream::readFixed32, (v, c) -> c.writeFixed32NoTag((Integer)v)),
     SFIXED32(5, c -> int.class.isAssignableFrom(c) || Integer.class.isAssignableFrom(c), CodedInputStream::readSFixed32, (v, c) -> c.writeSFixed32NoTag((Integer)v)),
     FLOAT(5, c -> float.class.isAssignableFrom(c) || Float.class.isAssignableFrom(c), CodedInputStream::readFloat, (v, c) -> c.writeFloatNoTag((Float)v))

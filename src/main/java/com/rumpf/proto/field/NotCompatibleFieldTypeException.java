@@ -2,7 +2,6 @@ package com.rumpf.proto.field;
 
 import com.rumpf.proto.PbFieldType;
 import com.rumpf.proto.ProtobufEnum;
-import com.rumpf.proto.ProtobufObject;
 
 import java.lang.reflect.Field;
 
@@ -51,7 +50,7 @@ public class NotCompatibleFieldTypeException extends RuntimeException {
                 msg += byte[].class.getName();
                 break;
             case MESSAGE:
-                msg += "class which extends " + ProtobufObject.class.getName();
+                msg += "class";
                 break;
             case ENUM:
                 msg += "enum which implements " + ProtobufEnum.class.getName();

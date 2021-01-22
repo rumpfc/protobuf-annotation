@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class MessageFieldFactory {
 
-    public static MessageField newMessageField(ProtobufObject pbObject, Field field) {
+    public static MessageField newMessageField(Object pbObject, Field field) {
         PbField f = field.getAnnotation(PbField.class);
 
         PbFieldType type = f.type();

@@ -1,11 +1,10 @@
 package com.rumpf.proto.field;
 
-import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.rumpf.proto.PbFieldType;
 import com.rumpf.proto.PbModifier;
 import com.rumpf.proto.ProtobufEnum;
-import com.rumpf.proto.ProtobufObject;
+import com.rumpf.proto.mapper.PbObjectMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -18,7 +17,7 @@ public class RepeatedMessageField extends SingleMessageField {
 
     private Collection coll;
 
-    public RepeatedMessageField(ProtobufObject pbObject, Field field, int fieldNumber, PbFieldType type, PbModifier modifier) {
+    public RepeatedMessageField(Object pbObject, Field field, int fieldNumber, PbFieldType type, PbModifier modifier) {
         super(pbObject, field, fieldNumber, type, modifier);
     }
 
@@ -59,7 +58,7 @@ public class RepeatedMessageField extends SingleMessageField {
 
         try {
             field.setAccessible(true);
-            field.set(pbObject, coll);
+            field.set(object, coll);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } finally {
@@ -101,17 +100,12 @@ public class RepeatedMessageField extends SingleMessageField {
 
     }
 
-    private ProtobufObject toPbObject(Object value) {
+    private Object toPbObject(Object value) {
         if(value instanceof byte[]) {
             try {
                 byte[] data = (byte[]) value;
-                Constructor<?> constructor = getCollectionGenericClass().getConstructor();
-                Object o = constructor.newInstance();
-                if(o instanceof ProtobufObject) {
-                    ((ProtobufObject)o).read(data);
-                    return (ProtobufObject)o;
-                }
-            } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | InvocationTargetException | InstantiationException | IOException e) {
+                return new PbObjectMapper().read(data);
+            } catch (IllegalArgumentException | IOException e) {
                 e.printStackTrace();
             }
         }
