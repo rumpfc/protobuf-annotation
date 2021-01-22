@@ -47,6 +47,14 @@ public class PbObjectMapperTest {
         public void setName(String name) {
             this.name = name;
         }
+
+        @Override
+        public String toString() {
+            return "SampleClass1{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
     }
 
     private PbObjectMapper mapper;
@@ -58,8 +66,8 @@ public class PbObjectMapperTest {
 
     @Test
     public void objectMapperWriteTest() throws Exception {
-        SampleClass1 sample = new SampleClass1(20, "Rumpfi");
-        byte[] expected = new byte[]{ 0x08, 0x14, 0x12, 0x06, 0x52, 0x75, 0x6D, 0x70, 0x66, 0x69};
+        SampleClass1 sample = new SampleClass1(20, "rumpfc");
+        byte[] expected = new byte[]{ 0x08, 0x14, 0x12, 0x06, 0x72, 0x75, 0x6D, 0x70, 0x66, 0x63};
 
         byte[] result = mapper.write(sample);
 
@@ -68,13 +76,15 @@ public class PbObjectMapperTest {
 
     @Test
     public void objectMapperReadTest() throws Exception {
-        byte[] sampleData = new byte[]{ 0x08, 0x14, 0x12, 0x06, 0x52, 0x75, 0x6D, 0x70, 0x66, 0x69};
+        byte[] sampleData = new byte[]{ 0x08, 0x14, 0x12, 0x06, 0x72, 0x75, 0x6D, 0x70, 0x66, 0x63};
 
         SampleClass1 sampleObject = mapper.read(sampleData, SampleClass1.class);
 
+        System.out.println(sampleObject);
+
         Assertions.assertAll(
                 () -> Assertions.assertEquals(20, sampleObject.getId()),
-                () -> Assertions.assertEquals("Rumpfi", sampleObject.getName())
+                () -> Assertions.assertEquals("rumpfc", sampleObject.getName())
         );
     }
 
