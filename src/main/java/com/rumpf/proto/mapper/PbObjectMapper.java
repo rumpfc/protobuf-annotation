@@ -8,8 +8,11 @@ import com.rumpf.proto.field.MessageFieldFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,25 +47,102 @@ public class PbObjectMapper {
                 .forEach(mf -> messageFields.put(mf.getFieldNumber(), mf));
     }
 
-    public byte[] write(Object object) throws IOException {
-        initMessageFields(object);
+    ////////////////////////////////////////////////////
+    /////             write operations             /////
+    ////////////////////////////////////////////////////
 
+    public byte[] write(Object object) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         CodedOutputStream cos = CodedOutputStream.newInstance(os);
+
+        write(object, cos);
+
+        return os.toByteArray();
+    }
+
+    public void write(Object object, byte[] flatArray) throws IOException {
+        write(object, CodedOutputStream.newInstance(flatArray));
+    }
+
+    public void write(Object object, byte[] flatArray, int offset, int length) throws IOException {
+        write(object, CodedOutputStream.newInstance(flatArray, offset, length));
+    }
+
+    public void write(Object object, ByteBuffer buffer) throws IOException {
+        write(object, CodedOutputStream.newInstance(buffer));
+    }
+
+    public void write(Object object, OutputStream output) throws IOException {
+        write(object, CodedOutputStream.newInstance(output));
+    }
+
+    public void write(Object object, OutputStream output, int bufferSize) throws IOException {
+        write(object, CodedOutputStream.newInstance(output, bufferSize));
+    }
+
+    private void write(Object object, CodedOutputStream cos) throws IOException {
+        initMessageFields(object);
 
         for(MessageField field : messageFields.values()) {
             field.write(cos);
         }
 
         cos.flush();
-        return os.toByteArray();
     }
+
+    ///////////////////////////////////////////////////
+    /////             read operations             /////
+    ///////////////////////////////////////////////////
 
     public Object read(byte[] data) throws IOException {
         return read(data, Object.class);
     }
 
     public <T> T read(byte[] data, Class<T> clazz) throws IOException {
+        return read(CodedInputStream.newInstance(data), clazz);
+    }
+
+    public Object read(byte[] data, int off, int len) throws IOException {
+        return read(data, off, len, Object.class);
+    }
+
+    public <T> T read(byte[] data, int off, int len, Class<T> clazz) throws IOException {
+        return read(CodedInputStream.newInstance(data, off, len), clazz);
+    }
+
+    public Object read(ByteBuffer buf) throws IOException {
+        return read(buf, Object.class);
+    }
+
+    public <T> T read(ByteBuffer buf, Class<T> clazz) throws IOException {
+        return read(CodedInputStream.newInstance(buf), clazz);
+    }
+
+    public Object read(InputStream input) throws IOException {
+        return read(input, Object.class);
+    }
+
+    public <T> T read(InputStream input, Class<T> clazz) throws IOException {
+        return read(CodedInputStream.newInstance(input), clazz);
+    }
+
+    public Object read(InputStream input, int buffersize) throws IOException {
+        return read(input, buffersize, Object.class);
+    }
+
+    public <T> T read(InputStream input, int buffersize, Class<T> clazz) throws IOException {
+        return read(CodedInputStream.newInstance(input, buffersize), clazz);
+    }
+
+    public Object read(Iterable<ByteBuffer> input) throws IOException {
+        return read(input, Object.class);
+    }
+
+    public <T> T read(Iterable<ByteBuffer> input, Class<T> clazz) throws IOException {
+        return read(CodedInputStream.newInstance(input), clazz);
+    }
+
+    private <T> T read(CodedInputStream cis, Class<T> clazz) throws IOException {
         T object = createInstance(clazz);
 
         if(object == null) {
@@ -71,13 +151,12 @@ public class PbObjectMapper {
 
         initMessageFields(object);
 
-        CodedInputStream cis = CodedInputStream.newInstance(data);
-
         while (!cis.isAtEnd()) {
             int tag = cis.readTag();
+            int fieldNumber = tag >> 3;
 
-            if(messageFields.containsKey(tag >> 3)) {
-                messageFields.get(tag >> 3).read(cis);
+            if(messageFields.containsKey(fieldNumber)) {
+                messageFields.get(fieldNumber).read(cis);
             } else {
                 cis.skipField(tag);
             }

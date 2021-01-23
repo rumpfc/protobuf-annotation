@@ -132,8 +132,6 @@ public class PbObjectMapperTest {
         buffer.put((byte) 0x10); // tag
         buffer.put((byte) 0x00); // MOBILE
 
-
-
         byte[] result = mapper.write(person);
 
         Assertions.assertArrayEquals(expected, result);
