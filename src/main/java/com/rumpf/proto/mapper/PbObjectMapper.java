@@ -6,10 +6,7 @@ import com.rumpf.proto.PbField;
 import com.rumpf.proto.field.MessageField;
 import com.rumpf.proto.field.MessageFieldFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
@@ -72,6 +69,10 @@ public class PbObjectMapper {
         write(object, CodedOutputStream.newInstance(buffer));
     }
 
+    public void write(Object object, File file) throws IOException {
+        write(object, new FileOutputStream(file));
+    }
+
     public void write(Object object, OutputStream output) throws IOException {
         write(object, CodedOutputStream.newInstance(output));
     }
@@ -116,6 +117,14 @@ public class PbObjectMapper {
 
     public <T> T read(ByteBuffer buf, Class<T> clazz) throws IOException {
         return read(CodedInputStream.newInstance(buf), clazz);
+    }
+
+    public Object read(File source) throws IOException {
+        return read(source, Object.class);
+    }
+
+    public <T> T read(File source, Class<T> clazz) throws IOException {
+        return read(new FileInputStream(source), clazz);
     }
 
     public Object read(InputStream input) throws IOException {
