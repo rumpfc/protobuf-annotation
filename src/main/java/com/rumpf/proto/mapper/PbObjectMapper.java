@@ -4,6 +4,7 @@ import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.rumpf.proto.PbField;
 import com.rumpf.proto.exception.DuplicateFieldNumberException;
+import com.rumpf.proto.exception.NoPbFieldsException;
 import com.rumpf.proto.field.MessageField;
 import com.rumpf.proto.field.MessageFieldFactory;
 
@@ -53,6 +54,10 @@ public class PbObjectMapper {
             } else {
                 messageFields.put(mf.getFieldNumber(), mf);
             }
+        }
+
+        if(messageFields.isEmpty()) {
+            throw new NoPbFieldsException(object.getClass());
         }
     }
 
