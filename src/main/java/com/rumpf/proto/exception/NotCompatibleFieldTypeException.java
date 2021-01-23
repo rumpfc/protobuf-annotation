@@ -1,4 +1,4 @@
-package com.rumpf.proto.field;
+package com.rumpf.proto.exception;
 
 import com.rumpf.proto.PbFieldType;
 import com.rumpf.proto.ProtobufEnum;

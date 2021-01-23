@@ -1,6 +1,4 @@
-package com.rumpf.proto.field;
-
-import com.rumpf.proto.ProtobufEnum;
+package com.rumpf.proto.exception;
 
 import java.lang.reflect.Field;
 import java.util.Collection;

@@ -8,6 +8,7 @@ import java.io.IOException;
 public interface MessageField {
 
     int getFieldNumber();
+    String getFieldName();
 
     void read(CodedInputStream cis) throws IOException;
     void write(CodedOutputStream cos) throws IOException;

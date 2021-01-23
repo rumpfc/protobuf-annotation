@@ -2,7 +2,6 @@ package com.rumpf.mapper;
 
 import com.rumpf.proto.PbField;
 import com.rumpf.proto.PbFieldType;
-import com.rumpf.proto.field.NotCompatibleFieldTypeException;
 import com.rumpf.proto.mapper.PbObjectMapper;
 import com.rumpf.sample.Person;
 import org.junit.jupiter.api.Assertions;

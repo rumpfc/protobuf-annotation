@@ -3,14 +3,15 @@ package com.rumpf.proto.mapper;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.rumpf.proto.PbField;
+import com.rumpf.proto.exception.DuplicateFieldNumberException;
 import com.rumpf.proto.field.MessageField;
 import com.rumpf.proto.field.MessageFieldFactory;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class PbObjectMapper {
         messageFields = new HashMap<>();
     }
 
-    private <T> T createInstance(Class<T> clazz) {
+    private static <T> T createInstance(Class<T> clazz) {
         try {
             Constructor<T> constructor = clazz.getConstructor();
             constructor.setAccessible(true);
@@ -38,10 +39,21 @@ public class PbObjectMapper {
     private void initMessageFields(Object object) {
         messageFields.clear();
 
-        Arrays.stream(object.getClass().getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(PbField.class))
-                .map(f -> MessageFieldFactory.newMessageField(object, f))
-                .forEach(mf -> messageFields.put(mf.getFieldNumber(), mf));
+        Field[] fields = object.getClass().getDeclaredFields();
+
+        for(Field field : fields) {
+            if(!field.isAnnotationPresent(PbField.class)) {
+                continue;
+            }
+
+            MessageField mf = MessageFieldFactory.newMessageField(object, field);
+
+            if(messageFields.containsKey(mf.getFieldNumber())) {
+                throw new DuplicateFieldNumberException(object.getClass(), messageFields.get(mf.getFieldNumber()), mf);
+            } else {
+                messageFields.put(mf.getFieldNumber(), mf);
+            }
+        }
     }
 
     ////////////////////////////////////////////////////

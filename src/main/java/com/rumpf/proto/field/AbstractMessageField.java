@@ -7,6 +7,7 @@ import com.rumpf.proto.PbModifier;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 public abstract class AbstractMessageField implements MessageField {
 
@@ -27,6 +28,11 @@ public abstract class AbstractMessageField implements MessageField {
     @Override
     public int getFieldNumber() {
         return fieldNumber;
+    }
+
+    @Override
+    public String getFieldName() {
+        return Objects.nonNull(field) ? field.getName() : null;
     }
 
     public abstract void read(CodedInputStream cis) throws IOException;

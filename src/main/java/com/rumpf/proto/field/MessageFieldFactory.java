@@ -1,11 +1,12 @@
 package com.rumpf.proto.field;
 
 import com.rumpf.proto.*;
+import com.rumpf.proto.exception.NotARepeatedFieldException;
+import com.rumpf.proto.exception.NotCompatibleFieldTypeException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
-import java.util.Objects;
 
 public class MessageFieldFactory {
 
