@@ -75,12 +75,25 @@ public class SingleMessageField extends AbstractMessageField {
         if(value instanceof Integer) {
             try {
                 field.setAccessible(true);
-                field.set(object, ProtobufEnum.findById(field.getType(), (Integer)value));
+
+                if(ProtobufEnum.class.isAssignableFrom(field.getType())) {
+                    field.set(object, ProtobufEnum.findById(field.getType(), (Integer)value));
+                } else {
+                    field.set(object, getEnumValues(field.getType())[(Integer)value]);
+                }
+
                 field.setAccessible(false);
-            } catch (IllegalAccessException | IllegalArgumentException e) {
+            } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static Object[] getEnumValues(Class<?> enumClass) throws NoSuchFieldException, IllegalAccessException {
+        Field f = enumClass.getDeclaredField("$VALUES");
+        f.setAccessible(true);
+        Object o = f.get(null);
+        return (Object[]) o;
     }
 
     private void setMessage(Object value) {

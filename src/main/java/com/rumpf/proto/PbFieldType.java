@@ -1,8 +1,10 @@
 package com.rumpf.proto;
 
 import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.CodedOutputStream;
 import com.rumpf.proto.mapper.PbObjectMapper;
 
+import java.io.IOException;
 import java.util.function.Predicate;
 
 public enum PbFieldType {
@@ -13,7 +15,7 @@ public enum PbFieldType {
     INT64(0, c -> long.class.isAssignableFrom(c) || Long.class.isAssignableFrom(c), CodedInputStream::readInt64, (v, c) -> c.writeInt64NoTag((Long)v)),
     UINT64(0, c -> long.class.isAssignableFrom(c) || Long.class.isAssignableFrom(c), CodedInputStream::readUInt64, (v, c) -> c.writeUInt64NoTag((Long)v)),
     SINT64(0, c -> long.class.isAssignableFrom(c) || Long.class.isAssignableFrom(c), CodedInputStream::readSInt64, (v, c) -> c.writeSInt64NoTag((Long)v)),
-    ENUM(0, ProtobufEnum.class::isAssignableFrom, CodedInputStream::readEnum, (v, c) -> c.writeEnumNoTag(((ProtobufEnum)v).getId())),
+    ENUM(0, c -> c.isEnum() || ProtobufEnum.class.isAssignableFrom(c), CodedInputStream::readEnum, PbFieldType::writeEnum),
     FIXED64(1, c -> long.class.isAssignableFrom(c) || Long.class.isAssignableFrom(c), CodedInputStream::readFixed64, (v, c) -> c.writeFixed64NoTag((Long)v)),
     SFIXED64(1, c -> long.class.isAssignableFrom(c) || Long.class.isAssignableFrom(c), CodedInputStream::readSFixed64, (v, c) -> c.writeSFixed64NoTag((Long)v)),
     DOUBLE(1, c -> double.class.isAssignableFrom(c) || Double.class.isAssignableFrom(c), CodedInputStream::readDouble, (v, c) -> c.writeDoubleNoTag((Double)v)),
@@ -51,5 +53,14 @@ public enum PbFieldType {
 
     public PbFieldWriter getWriter() {
         return writer;
+    }
+
+    private static void writeEnum(Object value, CodedOutputStream cos) throws IOException {
+
+        if(value instanceof ProtobufEnum) {
+            cos.writeEnumNoTag(((ProtobufEnum) value).getId());
+        } else if(value.getClass().isEnum()) {
+            cos.writeEnumNoTag(((Enum<?>)value).ordinal());
+        }
     }
 }

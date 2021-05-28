@@ -51,21 +51,10 @@ public class Person {
         this.phones = phones;
     }
 
-    public static enum PhoneType implements ProtobufEnum {
-        MOBILE(0),
-        HOME(1),
-        WORK(2);
-
-        private final int id;
-
-        PhoneType(int id) {
-            this.id = id;
-        }
-
-        @Override
-        public int getId() {
-            return id;
-        }
+    public enum PhoneType {
+        MOBILE,
+        HOME,
+        WORK
     }
 
     public static class PhoneNumber {
